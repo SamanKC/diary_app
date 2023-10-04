@@ -13,7 +13,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
       title: const Text("New Diary"),
       leading: CloseButton(
         onPressed: () async {
-          final value = await showDialog<bool>(
+          await showDialog<bool>(
               context: context,
               builder: (context) {
                 return AlertDialog(

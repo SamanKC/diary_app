@@ -28,8 +28,9 @@ class _AddDiaryPageState extends State<AddDiaryPage> {
       body: MultiBlocProvider(
         providers: [
           BlocProvider(
-            create: (context) => LocationCubit(),
+            create: (context) => DiaryBloc(),
           ),
+        
           BlocProvider(
             create: (context) => DiaryDataCubit(),
           ),

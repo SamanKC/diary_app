@@ -17,7 +17,7 @@ class DiaryBloc extends Bloc<DiaryEvent, DiaryState> {
       emit(LoadingDiaryState());
       try {
         final response = await _postDataToWebService(event.diaryData!);
-        if (response.statusCode > 200 && response.statusCode < 300) {
+        if (response.statusCode >= 200 && response.statusCode < 300) {
           emit(SuccessDiaryState());
         } else {
           emit(ErrorDiaryState('Failed to post data to the web service'));
@@ -52,7 +52,7 @@ class DiaryBloc extends Bloc<DiaryEvent, DiaryState> {
       if (response.statusCode == 200) {
         final jsonResponse = jsonDecode(response.body);
         print(jsonResponse);
-        return response;
+        return jsonResponse;
       } else {
         throw ('Failed to post data. Status code: ${response.statusCode}');
       }

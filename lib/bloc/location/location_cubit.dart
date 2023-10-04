@@ -12,7 +12,7 @@ class LocationCubit extends Cubit<LocationState> {
     LocationData? locationData;
     try {
       locationData!.currentPosition = await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.high,
+        desiredAccuracy: LocationAccuracy.bestForNavigation,
       );
 
       await _getAddressFromLatLng();
@@ -35,7 +35,6 @@ class LocationCubit extends Cubit<LocationState> {
       String _currentAddress =
           "${place.locality}, ${place.postalCode}, ${place.country}";
 
-      // Emit the address information to the state.
       emit(LocationAddressState(_currentAddress));
     } catch (e) {
       print(e);

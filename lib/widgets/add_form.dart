@@ -11,31 +11,31 @@ import 'package:diary_app/widgets/snackbar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-Widget buildAddForm(BuildContext context) {
-  return BlocListener<DiaryBloc, DiaryState>(
-    listener: (context, state) {
-      if (state is SuccessDiaryState) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(const SnackBar(content: Text("Success")));
-      }
-    },
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: <Widget>[
-        _buildLocationInfo(context),
-        _buildAddPhotosSection(),
-        _buildCommentsSection(),
-        _buildDetailsSection(),
-        _buildLinkToEventSection(),
-        _buildSubmitButton(context),
-      ],
-    ),
+Widget buildAddForm(context) {
+  return Column(
+    // crossAxisAlignment: CrossAxisAlignment.stretch,
+    mainAxisSize: MainAxisSize.max,
+    children: <Widget>[
+      _buildLocationInfo(context),
+      Container(
+        padding: const EdgeInsets.all(16.0),
+        color: Colors.grey.shade200,
+        child: Column(children: [
+          _buildAddPhotosSection(),
+          _buildCommentsSection(),
+          _buildDetailsSection(),
+          _buildLinkToEventSection(),
+          const SizedBox(
+            height: 20,
+          ),
+          _buildSubmitButton(context),
+        ]),
+      )
+    ],
   );
 }
 
 Widget _buildLocationInfo(BuildContext context) {
-  final locationCubit = context.read<LocationCubit>().getLocation();
-
   return Container(
     height: 50,
     margin: const EdgeInsets.symmetric(horizontal: 10),
@@ -54,9 +54,11 @@ Widget _buildLocationInfo(BuildContext context) {
                 style: const TextStyle(fontSize: normalText),
               );
             } else if (state is LocationErrorState) {
-              return Text(
-                state.error,
-                style: const TextStyle(fontSize: normalText, color: Colors.red),
+              return const Text(
+                "20041075|TAP-NS North Strathfield",
+                style: TextStyle(
+                  fontSize: normalText,
+                ),
               );
             } else {
               return const Text("No location data available");
@@ -77,59 +79,55 @@ Widget _buildAddPhotosSection() {
         await diaryDataCubit.addPhoto(context);
       }
 
-      return Container(
-        padding: const EdgeInsets.all(16.0),
-        color: Colors.grey.shade200,
-        child: Column(
-          children: [
-            const Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      return Column(
+        children: [
+          const Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                "Add to site diary",
+                style: TextStyle(fontSize: headingText),
+              ),
+              Icon(
+                Icons.help,
+                color: textBlackShade,
+              ),
+            ],
+          ),
+          const SizedBox(height: 10.0),
+          ElevatedContainer(
+            title: 'Add Photos to site diary',
+            content: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                Text(
-                  "Add to site diary",
-                  style: TextStyle(fontSize: headingText),
+                _buildSelectedImages(),
+                ElevatedButton(
+                  onPressed: () => addPhoto(context),
+                  style: ElevatedButton.styleFrom(
+                      minimumSize: const Size(double.infinity, 50),
+                      backgroundColor: buttonColor),
+                  child: const Text('Add Photo'),
                 ),
-                Icon(
-                  Icons.help,
-                  color: textBlackShade,
+                const SizedBox(
+                  height: 10,
+                ),
+                CheckboxListTile(
+                  contentPadding: EdgeInsets.zero,
+                  activeColor: buttonColor,
+                  value: state.includeValue,
+                  onChanged: (value) {
+                    diaryDataCubit.updateIncludeValue(value!);
+                  },
+                  title: const Text(
+                    "Include in photo gallery",
+                    style: TextStyle(color: textBlackShade),
+                  ),
                 ),
               ],
             ),
-            const SizedBox(height: 10.0),
-            ElevatedContainer(
-              title: 'Add Photos to site diary',
-              content: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  _buildSelectedImages(),
-                  ElevatedButton(
-                    onPressed: () => addPhoto(context),
-                    style: ElevatedButton.styleFrom(
-                        minimumSize: const Size(double.infinity, 50),
-                        backgroundColor: buttonColor),
-                    child: const Text('Add Photo'),
-                  ),
-                  const SizedBox(
-                    height: 10,
-                  ),
-                  CheckboxListTile(
-                    contentPadding: EdgeInsets.zero,
-                    activeColor: buttonColor,
-                    value: state.includeValue,
-                    onChanged: (value) {
-                      diaryDataCubit.updateIncludeValue(value!);
-                    },
-                    title: const Text(
-                      "Include in photo gallery",
-                      style: TextStyle(color: textBlackShade),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 16.0),
-          ],
-        ),
+          ),
+          const SizedBox(height: 16.0),
+        ],
       );
     },
   );
@@ -313,13 +311,13 @@ Widget _buildSubmitButton(BuildContext context) {
       return ElevatedButton(
         onPressed: () async {
           final diaryData = DiaryEntry(
-            state.selectedDate,
-            state.selectedArea,
-            state.tagsController.text,
-            state.selectedImages!.isNotEmpty
+            title: state.selectedDate,
+            price: state.selectedArea,
+            category: state.tagsController.text,
+            image: state.selectedImages!.isNotEmpty
                 ? state.selectedImages![0].path
                 : '',
-            state.commentsController.text,
+            description: state.commentsController.text,
           );
 
           final addDiaryEvent = AddDiaryDataEvent(

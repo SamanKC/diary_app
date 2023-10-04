@@ -12,24 +12,13 @@ class DiaryEntry {
   String? image;
   String? category;
 
-  DiaryEntry(
-      this.title, this.price, this.description, this.image, this.category);
-
-  DiaryEntry copyWith({
-    String? title,
-    String? price,
-    String? description,
-    String? image,
-    String? category,
-  }) {
-    return DiaryEntry(
-      title ?? this.title,
-      price ?? this.price,
-      description ?? this.description,
-      image ?? this.image,
-      category ?? this.category,
-    );
-  }
+  DiaryEntry({
+    this.title,
+    this.price,
+    this.description,
+    this.image,
+    this.category,
+  });
 
   Map<String, dynamic> toMap() {
     return <String, dynamic>{
@@ -43,11 +32,12 @@ class DiaryEntry {
 
   factory DiaryEntry.fromMap(Map<String, dynamic> map) {
     return DiaryEntry(
-      map['title'] != null ? map['title'] as String : null,
-      map['price'] != null ? map['price'] as String : null,
-      map['description'] != null ? map['description'] as String : null,
-      map['image'] != null ? map['image'] as String : null,
-      map['category'] != null ? map['category'] as String : null,
+      title: map['title'] != null ? map['title'] as String : null,
+      price: map['price'] != null ? map['price'] as String : null,
+      description:
+          map['description'] != null ? map['description'] as String : null,
+      image: map['image'] != null ? map['image'] as String : null,
+      category: map['category'] != null ? map['category'] as String : null,
     );
   }
 
