@@ -11,7 +11,8 @@ class LocationLoadedState extends LocationState {
 }
 
 class LocationAddressState extends LocationState {
-  LocationAddressState(String currentAddress);
+  final String address;
+  LocationAddressState(this.address);
 }
 
 class LocationErrorState extends LocationState {

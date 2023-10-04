@@ -1,41 +1,52 @@
 import 'package:diary_app/models/Location.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 part 'location_state.dart';
 
 class LocationCubit extends Cubit<LocationState> {
   LocationCubit() : super(LocationLoadingState());
 
+  Future<void> requestLocationPermission() async {
+    final status = await Permission.location.request();
+    if (status.isGranted) {
+      await getLocation();
+    } else {
+      emit(LocationErrorState('Location permission denied.'));
+    }
+  }
+
   Future<void> getLocation() async {
-    LocationData? locationData;
     try {
-      locationData!.currentPosition = await Geolocator.getCurrentPosition(
+      final locationData = LocationData();
+      locationData.currentPosition = await Geolocator.getCurrentPosition(
         desiredAccuracy: LocationAccuracy.bestForNavigation,
       );
 
-      await _getAddressFromLatLng();
+      await _getAddressFromLatLng(locationData.currentPosition!);
 
-      emit(LocationLoadedState(locationData.currentPosition!));
+      // emit(LocationLoadedState(locationData.currentPosition!));
     } catch (e) {
       emit(LocationErrorState('Error getting location: $e'));
     }
   }
 
-  Future<void> _getAddressFromLatLng() async {
-    LocationData? locationData;
+  Future<void> _getAddressFromLatLng(Position locationData) async {
     try {
-      List<Placemark> placemarks = await placemarkFromCoordinates(
-          locationData!.currentPosition!.latitude,
-          locationData.currentPosition!.longitude);
+      final List<Placemark> placemarks = await placemarkFromCoordinates(
+        locationData.latitude,
+        locationData.longitude,
+      );
 
-      Placemark place = placemarks[0];
+      final Placemark place = placemarks[0];
 
-      String _currentAddress =
+      final String currentAddress =
           "${place.locality}, ${place.postalCode}, ${place.country}";
 
-      emit(LocationAddressState(_currentAddress));
+      emit(LocationAddressState(currentAddress));
     } catch (e) {
       print(e);
     }

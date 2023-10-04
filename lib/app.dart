@@ -15,7 +15,7 @@ class App extends StatelessWidget {
       ),
       debugShowCheckedModeBanner: false,
       home: BlocProvider(
-        create: (context) => LocationCubit()..getLocation(),
+        create: (context) => LocationCubit()..requestLocationPermission(),
         child: AddDiaryPage(),
       ),
     );

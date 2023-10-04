@@ -41,16 +41,18 @@ Widget _buildLocationInfo(BuildContext context) {
     margin: const EdgeInsets.symmetric(horizontal: 10),
     child: Row(
       children: [
-        const Icon(Icons.location_pin),
+        IconButton(
+            onPressed: () {
+              context.read<LocationCubit>().requestLocationPermission();
+            },
+            icon: const Icon(Icons.location_pin)),
         BlocBuilder<LocationCubit, LocationState>(
           builder: (context, state) {
             if (state is LocationLoadingState) {
               return const Text("Fetching location...");
-            } else if (state is LocationLoadedState) {
-              final position = state.position;
-              final location = "Lat: ${position.latitude}";
+            } else if (state is LocationAddressState) {
               return Text(
-                location,
+                state.address,
                 style: const TextStyle(fontSize: normalText),
               );
             } else if (state is LocationErrorState) {
@@ -61,7 +63,7 @@ Widget _buildLocationInfo(BuildContext context) {
                 ),
               );
             } else {
-              return const Text("No location data available");
+              return Text(state.toString());
             }
           },
         ),
