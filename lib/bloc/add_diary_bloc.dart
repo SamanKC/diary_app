@@ -1,7 +1,9 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:bloc/bloc.dart';
+import 'package:diary_app/models/diary_entry.dart';
 import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
 
@@ -14,8 +16,7 @@ class DiaryBloc extends Bloc<DiaryEvent, DiaryState> {
     on<AddDiaryDataEvent>((event, emit) async {
       emit(LoadingDiaryState());
       try {
-        final response = await _postDataToWebService(
-            event.diaryData!, event.selectedImages!);
+        final response = await _postDataToWebService(event.diaryData!);
         if (response.statusCode > 200 && response.statusCode < 300) {
           emit(SuccessDiaryState());
         } else {
@@ -28,32 +29,35 @@ class DiaryBloc extends Bloc<DiaryEvent, DiaryState> {
   }
 
   Future<http.Response> _postDataToWebService(
-    Map<String, dynamic>? diaryData,
-    List<XFile>? selectedImages,
+    DiaryEntry? diaryData,
   ) async {
-    if (diaryData == null || selectedImages == null) {
-      throw Exception('Invalid data or images');
+    final Uri apiUrl = Uri.parse('https://fakestoreapi.com/products');
+    if (diaryData == null) {
+      throw Exception('Invalid data or image');
     }
 
-    final List<String> imageBase64List = [];
-    for (final image in selectedImages) {
-      final bytes = await image.readAsBytes();
-      final base64Image = base64Encode(bytes);
-      imageBase64List.add(base64Image);
+    try {
+      if (diaryData.image != null) {
+        final file = File(diaryData.image!);
+        final List<int> imageBytes = await file.readAsBytes();
+        final String base64Image = base64Encode(imageBytes);
+
+        diaryData.image = base64Image;
+      }
+      final response = await http.post(
+        apiUrl,
+        body: jsonEncode(diaryData),
+      );
+      print(response.statusCode);
+      if (response.statusCode == 200) {
+        final jsonResponse = jsonDecode(response.body);
+        print(jsonResponse);
+        return response;
+      } else {
+        throw ('Failed to post data. Status code: ${response.statusCode}');
+      }
+    } catch (e) {
+      throw ('Error posting data: $e');
     }
-
-    diaryData['images'] = imageBase64List;
-
-    final Uri uri = Uri.parse('https://reqres.in/api/newdiary');
-
-    final response = await http.post(
-      uri,
-      headers: <String, String>{
-        'Content-Type': 'application/json',
-      },
-      body: jsonEncode(diaryData),
-    );
-
-    return response;
   }
 }

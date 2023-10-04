@@ -6,7 +6,7 @@ class ElevatedContainer extends StatelessWidget {
   final Widget? titleWidget;
   final Widget content;
 
-  ElevatedContainer(
+  const ElevatedContainer(
       {super.key, this.title, this.titleWidget, required this.content});
 
   @override

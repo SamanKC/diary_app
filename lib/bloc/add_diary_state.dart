@@ -13,3 +13,10 @@ class ErrorDiaryState extends DiaryState {
 
   ErrorDiaryState(this.errorMessage);
 }
+
+class PhotosAddedState extends DiaryState {
+  final List<XFile>? images;
+
+  PhotosAddedState({required this.images});
+
+}

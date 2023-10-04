@@ -3,8 +3,9 @@ part of 'add_diary_bloc.dart';
 abstract class DiaryEvent {}
 
 class AddDiaryDataEvent extends DiaryEvent {
-  final Map<String, dynamic>? diaryData;
-  final List<XFile>? selectedImages;
+  final DiaryEntry? diaryData;
 
-  AddDiaryDataEvent({this.diaryData, this.selectedImages});
+  AddDiaryDataEvent({this.diaryData});
 }
+
+class AddPhotoEvent extends DiaryEvent {}
